@@ -3,50 +3,51 @@ name: Build and publish docker image
 on:
   workflow_call:
     inputs:
+      project_id:
+        type: string
+        required: true
       image_name:
         type: string
         required: true
       image_tag:
         type: string
+      stage_version:
+        type: string
+        default: development
     secrets:
-      registry_url:
-        required: true
-      registry_username:
-        required: true
-      registry_password:
+      GCP_SERVICE_KEY:
         required: true
         
 jobs:
   build:
     runs-on: ubuntu-latest
 
-    steps:      
-      - uses: actions/checkout@v2
-      
-      - name: Setup BuildX
-        uses: docker/setup-buildx-action@v1
-
-      - name: Login to the Registry
-        uses: docker/login-action@v1
+    steps:
+      # this step maybe is not needed
+      - name: Configure gcloud access
+        uses: google-github-actions/setup-gcloud@master
         with:
-          username: ${{secrets.registry_username}}
-          password: ${{secrets.registry_password}}
-      
+          service_account_key: ${{ secrets.GCP_SERVICE_KEY }}
+          export_default_credentials: true
+          
       - name: Set the tag
         run: |
-          if [ -z "${{inputs.tag}}" ]
+          if [ -z "${{inputs.image_tag}}" ]
           then
             echo "final_tag=latest" >> $GITHUB_ENV
           else
-            echo "final_tag=${{inputs.tag}}" >> $GITHUB_ENV
+            echo "final_tag=${{inputs.image_tag}}" >> $GITHUB_ENV
           fi
       
-      - name: Build and Push the Image
-        uses: docker/build-push-action@v2
+      - name: Get code
+        uses: actions/checkout@v2
+        
+      - uses: RafikFarhad/push-to-gcr-github-action@v4
         with:
+          gcloud_service_key: ${{ secrets.GCP_SERVICE_KEY }}
+          registry: gcr.io
+          project_id: ${{ inputs.project_id }}
+          image_name: ${{ inputs.image_name }}
+          image_tag: ${{ env.final_tag }}
           context: .
-          push: true
-          tags: ${{secrets.registry_username}}/${{inputs.image_name}}:${{env.final_tag}}
-          
-          
-  
+          build_args: BUILD_VERSION=${{ inputs.stage_version }}
