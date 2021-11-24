@@ -1,6 +1,7 @@
 name: Build and publish docker image
 
 on:
+  workflow_dispatch:
   workflow_call:
     inputs:
       project_id:
@@ -11,7 +12,7 @@ on:
         required: true
       image_tag:
         type: string
-      stage_version:
+      build_args:
         type: string
         default: development
     secrets:
@@ -50,4 +51,4 @@ jobs:
           image_name: ${{ inputs.image_name }}
           image_tag: ${{ env.final_tag }}
           context: .
-          build_args: BUILD_VERSION=${{ inputs.stage_version }}
+          build_args: BUILD_VERSION=${{ inputs.build_args }}
