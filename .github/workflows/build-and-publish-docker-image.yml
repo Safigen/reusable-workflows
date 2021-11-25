@@ -1,0 +1,44 @@
+name: Buld and Publish
+description: Builds and publish a docker image to the gcloud registry
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
+      project_id:
+        type: string
+        required: true
+      image_name:
+        type: string
+        required: true
+      build_args:
+        type: string
+        default: development
+    secrets:
+      GCP_SERVICE_KEY:
+        required: true
+  
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    environment: ${{inputs.environment}}
+    steps:
+    - name: Checkout
+        uses: actions/checkout@v2
+
+    - name: Setup Cloud SDK
+      uses: google-github-actions/setup-gcloud@v0.2.0
+      with:
+        project_id: ${{inputs.project_id}}
+        service_account_key: ${{secrets.GCP_SERVICE_KEY}}
+
+    - name: Authorize Docker push
+      run: gcloud auth configure-docker
+
+    # Use the commit sha to tag the image so we can test it first and then tag it with the corresponding envrionment and deploy
+    - name: Build and Push Container
+      run: |-
+        docker build --build-arg BUILD_VERSION=${{inputs.build_args}} -t gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:${{  github.sha }} .
+        docker push gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:${{github.sha}}
