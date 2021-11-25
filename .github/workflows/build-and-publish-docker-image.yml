@@ -1,5 +1,4 @@
-name: Buld and Publish
-description: Builds and publish a docker image to the gcloud registry
+name: Build and Publish Docker Image
 
 on:
   workflow_call:
