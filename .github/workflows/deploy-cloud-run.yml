@@ -2,6 +2,19 @@ name: Deploy to cloud run
 
 on:
   workflow_dispatch:
+    inputs:
+      environment:
+        type: string
+        required: true
+      project_id:
+        type: string
+        required: true
+      service_name:
+        type: string
+        required: true
+      service_region:
+        type: string
+        default: us-central1
   workflow_call:
     inputs:
       environment:
