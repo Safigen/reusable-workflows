@@ -1,0 +1,39 @@
+name: Deploy to cloud run
+
+on:
+  workflow_call:
+    inputs
+      environment:
+        type: string
+        required: true
+      project_id:
+        type: string
+        required: true
+      service_name:
+        type: string
+        required: true
+      service_region:
+        type: string
+        default: us-central1
+    secrets:
+      GCP_SERVICE_KEY:
+        required: true
+  
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{inputs.environment}}
+    steps:
+      - name: Setup Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0.2.0
+        with:
+          project_id: ${{inputs.project_id}}
+          service_account_key: ${{secrets.GCP_SERVICE_KEY}}
+
+      - name: Deploy to Cloud Run
+        run: |-
+          gcloud run deploy ${{inputs.service_name}} \
+            --region ${{inputs.service_region}} \
+            --image gcr.io/${{inputs.project_id}}/${{inputs.service_name}}:${{  github.sha }} \
+            --platform "managed" \
+            --quiet 
