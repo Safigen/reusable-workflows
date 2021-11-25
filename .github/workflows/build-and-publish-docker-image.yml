@@ -38,7 +38,7 @@ jobs:
       run: gcloud auth configure-docker
 
     # Use the commit sha to tag the image so we can test it first and then tag it with the corresponding envrionment and deploy
-    - name: Build and Push Container
+    - name: Build and Publish to registry
       run: |-
         docker build --build-arg BUILD_VERSION=${{inputs.build_args}} -t gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:${{  github.sha }} .
         docker push gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:${{github.sha}}
