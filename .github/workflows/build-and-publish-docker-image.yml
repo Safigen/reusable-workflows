@@ -18,9 +18,9 @@ on:
       build_args:
         type: string
         default: development
-    secrets:
-      GCP_SERVICE_KEY:
-        required: true
+#    secrets:
+#      GCP_SERVICE_KEY:
+#        required: true
         
 jobs:
   build:
