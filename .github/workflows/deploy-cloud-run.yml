@@ -44,15 +44,22 @@ on:
         default: us-central1
       deploy_params:
         type: string
-        default: --no-traffic
     secrets:
       GCP_SERVICE_KEY:
         required: true
+  # Map the workflow outputs to job outputs
+    outputs:
+      deployed_service_url:
+        description: "The url of the service deployed"
+        value: ${{ jobs.deploy-cloud-run-service.outputs.deployed_service_url }} 
   
 jobs:
   deploy-cloud-run-service:
     runs-on: ubuntu-latest
     environment: ${{inputs.environment}}
+    # Map the job outputs to step outputs
+    outputs:
+      deployed_service_url: ${{ steps.last.outputs.service-url }}
     steps:
       - name: Setup Cloud SDK
         uses: google-github-actions/setup-gcloud@v0.2.0
@@ -76,3 +83,6 @@ jobs:
             --image gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:${{env.final_tag}} \
             --quiet \
             ${{inputs.deploy_params}}
+
+      - id: last
+        run: echo "::set-output name=servicec-url::hello"
