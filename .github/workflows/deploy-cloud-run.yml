@@ -81,6 +81,7 @@ jobs:
           gcloud run deploy ${{inputs.service_name}} \
             --region ${{inputs.service_region}} \
             --image gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:${{env.final_tag}} \
+            --allow-unauthenticated
             --quiet \
             ${{inputs.deploy_params}}
 
