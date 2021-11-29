@@ -13,6 +13,9 @@ on:
       image_name:
         type: string
         required: true
+      image_tag:
+        type: string
+        default: ${{ github.sha }}
       build_args:
         type: string
         default: development
@@ -40,5 +43,5 @@ jobs:
     # Use the commit sha to tag the image so we can test it first and then tag it with the corresponding envrionment and deploy
     - name: Build and Publish to registry
       run: |-
-        docker build --build-arg BUILD_VERSION=${{inputs.build_args}} -t gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:${{  github.sha }} .
-        docker push gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:${{github.sha}}
+        docker build --build-arg BUILD_VERSION=${{inputs.build_args}} -t gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:${{inputs.image_tag}} .
+        docker push gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:${{inputs.image_tag}}
