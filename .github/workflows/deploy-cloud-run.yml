@@ -6,9 +6,6 @@ on:
       environment:
         type: string
         required: true
-      project_id:
-        type: string
-        required: true
       service_name:
         type: string
         required: true
@@ -26,9 +23,6 @@ on:
   workflow_call:
     inputs:
       environment:
-        type: string
-        required: true
-      project_id:
         type: string
         required: true
       service_name:
@@ -53,6 +47,8 @@ on:
     secrets:
       GCP_SERVICE_KEY:
         required: true
+      GCP_PROJECT_ID:
+        required: true
   # Map the workflow outputs to job outputs
     outputs:
       deployed_service_url:
@@ -70,7 +66,7 @@ jobs:
       - name: Setup Cloud SDK
         uses: google-github-actions/setup-gcloud@v0.2.0
         with:
-          project_id: ${{inputs.project_id}}
+          project_id: ${{secrets.GCP_PROJECT_ID}}
           service_account_key: ${{secrets.GCP_SERVICE_KEY}}
 
       - name: Set the tag
@@ -86,7 +82,7 @@ jobs:
         run: |-
           gcloud run deploy ${{inputs.service_name}} \
             --region ${{inputs.service_region}} \
-            --image gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:${{env.final_tag}} \
+            --image gcr.io/${{secrets.GCP_PROJECT_ID}}/${{inputs.image_name}}:${{env.final_tag}} \
             --allow-unauthenticated \
             --quiet \
             ${{inputs.deploy_params}}
