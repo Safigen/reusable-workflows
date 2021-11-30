@@ -44,6 +44,12 @@ on:
         default: us-central1
       deploy_params:
         type: string
+      send_traffic_percentage:
+        type: number
+        default: 0
+      send_traffic_tag:
+        type: string
+        default: latest
     secrets:
       GCP_SERVICE_KEY:
         required: true
@@ -85,5 +91,11 @@ jobs:
             --quiet \
             ${{inputs.deploy_params}}
 
-      - id: last
-        run: echo "::set-output name=servicec-url::hello"
+      - name: Send traffic
+        if: inputs.send_traffic_percentage > 0
+        # run: echo "::set-output name=servicec-url::hello"
+        run: |-
+          gcloud run services update-traffic ${{inputs.service_name}} \
+            --region ${{inputs.service_region}} \
+            --platform managed \
+            --to-tags ${{ inputs.send_traffic_tag }}=${{ inputs.send_traffic_percentage }}
