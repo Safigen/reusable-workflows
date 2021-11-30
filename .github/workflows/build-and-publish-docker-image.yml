@@ -22,6 +22,8 @@ on:
     secrets:
       GCP_SERVICE_KEY:
         required: true
+      GCP_PROJECT_ID:
+        required: true
   
 jobs:
   build-and-publish:
@@ -43,5 +45,5 @@ jobs:
     # Use the commit sha to tag the image so we can test it first and then tag it with the corresponding envrionment and deploy
     - name: Build and Publish to registry
       run: |-
-        docker build --build-arg BUILD_VERSION=${{inputs.build_args}} -t gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:${{inputs.image_tag}} .
-        docker push gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:${{inputs.image_tag}}
+        docker build --build-arg BUILD_VERSION=${{inputs.build_args}} -t gcr.io/${{secrets.GCP_PROJECT_ID}}/${{inputs.image_name}}:${{inputs.image_tag}} .
+        docker push gcr.io/${{secrets.GCP_PROJECT_ID}}/${{inputs.image_name}}:${{inputs.image_tag}}
