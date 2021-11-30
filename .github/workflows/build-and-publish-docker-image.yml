@@ -7,9 +7,6 @@ on:
       environment:
         type: string
         required: true
-      project_id:
-        type: string
-        required: true
       image_name:
         type: string
         required: true
@@ -36,7 +33,7 @@ jobs:
     - name: Setup Cloud SDK
       uses: google-github-actions/setup-gcloud@v0.2.0
       with:
-        project_id: ${{inputs.project_id}}
+        project_id: ${{secrets.GCP_PROJECT_ID}}
         service_account_key: ${{secrets.GCP_SERVICE_KEY}}
 
     - name: Authorize Docker push
